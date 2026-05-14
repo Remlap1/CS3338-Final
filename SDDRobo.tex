@@ -1,0 +1,72 @@
+Software Design Document
+
+
+Revision History
+
+Group --- Snapshot 1 Update (Month 1 - 3) ---- Version 0.1
+
+- Added Introduction and design considerations
+
+Group --- Snapshot 2 Update (Month 4 - 6) ---- Version 0.2
+
+- Added Architectural Strategies, Policies and Tactics
+
+Group --- Snapshot 3 Update (Month 7 - 9) ---- Version 0.3
+
+- Added Detailed System Design
+
+Group --- Snapshot 4 Update (Month 10 - 12) ---- Version 0.4
+
+- Edited and finalized SDD
+
+Introduction:
+
+This document will go over the software requirements for the RoboSub project, and focuses on the
+technical side. It will be intended for readers that are developers, managers, and technical 
+users and is designed to help understand the code, update procedures, and architecture. The
+software used will be capable of onboard computing and control, using micocontroller drives and
+customized thrusters boards. 
+
+Design Considerations:
+
+The design of this system depends on several assumptions and constraints. The system assumes that 
+the main computing device, control board, sensors, actuators, and development tools are available 
+and working properly. If any of these parts change, the software design may need to be updated to 
+remain compatible with the new setup. The system also has limitations that must be considered during 
+development. These include limited processing power, memory, storage, testing time, and access to 
+physical hardware. Because the vehicle may operate in a real-world environment, the software should 
+be reliable, easy to understand, and able to handle possible errors. The design should also support 
+communication between the major subsystems so that vision, control, sensors, and autonomous behavior 
+can work together.
+
+Architectural Strategies:
+
+The system is designed using a modular architecture so that each major part of the project can be 
+developed, tested, and updated separately. The main subsystems include vision, control, sensing, 
+communication, simulation, and user documentation. Each subsystem should have a clear responsibility 
+and should exchange information through defined interfaces.This design was chosen because it makes 
+the project easier to maintain and expand. If a new sensor, actuator, or feature is added later, it 
+can be connected as a separate module instead of changing the entire system. The architecture also 
+supports testing in a virtual environment before using real hardware, which helps reduce risk and
+allows the team to find problems earlier.
+
+Policies and Tactics:
+
+For this project, we will use github for version control and collaborative development. We will use 
+neccessary software frameworks to provide tools for robot development to provide commuincation between 
+subsystems. We will include a comprehensive README where dependencies, features, and installtion 
+instructions are explained. We will imploy a variety of testing methods to ensure correct functionality,
+including simulation environments and real world environments. Multiple coding languages may be used 
+including python and C++, and as such we will follow these languages guidelines and document our code
+as need be. 
+
+
+Detailed System Design:
+
+The system is divided into several major modules that each handle a specific responsibility. The vision 
+module is responsible for collecting visual input, processing images, and identifying important objects 
+in the environment. This information is then shared with the control and autonomy modules so the vehicle 
+can make movement decisions based on what it detects. The control module is responsible for managing the 
+vehicle's movement and translating high level decisions into commands for the physical parts of the system. 
+It uses information from the vision and sensor modules to adjust direction, speed, and behavior. This module 
+must respond quickly and safely because delays or incorrect commands could cause the vehicle to move incorrectly.
