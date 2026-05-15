@@ -1,72 +1,209 @@
-Software Design Document
+\documentclass[12pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{longtable}
 
+\title{Software Design Document\\RoboSub LA Wailord Documentation and Control Software}
+\author{CS3338 Final Project}
+\date{Snapshot 4 Revision}
 
-Revision History
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
 
-Group --- Snapshot 1 Update (Month 1 - 3) ---- Version 0.1
+\section{Revision History}
+\begin{longtable}{|p{0.18\textwidth}|p{0.18\textwidth}|p{0.52\textwidth}|}
+\hline
+\textbf{Version} & \textbf{Snapshot} & \textbf{Summary} \\
+\hline
+0.1 & Snapshot 1 & Added introduction, project context, and design considerations. \\
+\hline
+0.2 & Snapshot 2 & Added architecture, policies, tactics, and environment assumptions. \\
+\hline
+0.3 & Snapshot 3 & Added detailed subsystem design, integration approach, and data flow. \\
+\hline
+0.4 & Snapshot 4 & Expanded module responsibilities, interfaces, deployment model, and testing strategy. \\
+\hline
+\end{longtable}
 
-- Added Introduction and design considerations
+\section{Introduction}
+\subsection{Purpose}
+This Software Design Document (SDD) explains the architecture and implementation approach for the RoboSub LA Wailord software system. It is based on the Cal State LA Ascent RoboSub project page and the linked Fall 2025 RoboSub SRS and SDD resources. It is intended for developers, reviewers, operators, and future teams who need to understand how computer vision, navigation, autonomy, controls, simulation, website support, and hardware communication fit together.
 
-Group --- Snapshot 2 Update (Month 4 - 6) ---- Version 0.2
+\subsection{Design Goals}
+\begin{itemize}[leftmargin=*]
+  \item Separate major RoboSub responsibilities into modules that can be developed and tested independently.
+  \item Use explicit message contracts between computer vision, autonomy, controls, navigation/state estimation, and hardware interfaces.
+  \item Support simulation-first validation before physical vehicle testing.
+  \item Make setup and dependencies reproducible through Docker and documented package lists.
+  \item Preserve safety by bounding commands, detecting stale inputs, and requiring operator-controlled hardware enablement.
+\end{itemize}
 
-- Added Architectural Strategies, Policies and Tactics
+\section{System Overview}
+The RoboSub system is designed as a ROS 2 Humble based robotics application running primarily on a Jetson Orin Nano with low-level support from a Teensy 4.1 microcontroller. Each subsystem runs as one or more nodes. Nodes exchange messages through topics and use services or actions for commands that require acknowledgement. The operator interacts with the project through repository documentation, command line launch scripts, Jira task tracking, the RoboSub LA website, and Unity HDRP or Gazebo Fortress simulation tools.
 
-Group --- Snapshot 3 Update (Month 7 - 9) ---- Version 0.3
+\section{Architecture}
+\subsection{High-Level Components}
+\begin{longtable}{|p{0.22\textwidth}|p{0.31\textwidth}|p{0.33\textwidth}|}
+\hline
+\textbf{Component} & \textbf{Responsibility} & \textbf{Primary Inputs and Outputs} \\
+\hline
+Computer Vision & Detect mission objects from low-light camera feeds using OpenCV and YOLOv7. & Inputs: camera frames. Outputs: detection messages. \\
+\hline
+Navigation and State Estimation & Build current Wailord pose, depth, heading, and health estimate. & Inputs: IMU, MS5837 depth, optional visual data. Outputs: pose and state messages. \\
+\hline
+Autonomy & Select mission state and target movement goals. & Inputs: detections and vehicle state. Outputs: goals and task commands. \\
+\hline
+Controls & Convert goals into movement commands. & Inputs: goals and vehicle state. Outputs: thruster setpoints. \\
+\hline
+Hardware Interface & Translate software commands to Teensy 4.1, sensor, actuator, or thruster protocol. & Inputs: bounded commands. Outputs: serial, PWM, GPIO, or custom board messages. \\
+\hline
+Simulation & Replace hardware with a Unity HDRP or Gazebo Fortress virtual pool and simulated sensors. & Inputs: launch configuration. Outputs: simulated sensor and vehicle state topics. \\
+\hline
+Website & Publish public-facing team, fleet, sponsor, resource, and update information. & Inputs: team content and media. Outputs: website pages. \\
+\hline
+Logging and Test Evidence & Capture run metadata, warnings, and results. & Inputs: all major node events. Outputs: logs, reports, and artifacts. \\
+\hline
+\end{longtable}
 
-- Added Detailed System Design
+\subsection{Architectural Pattern}
+The design uses a modular publish-subscribe architecture. Computer vision, navigation and state estimation, autonomy, controls, simulation, website support, and hardware output are separate modules with defined responsibilities. This pattern reduces coupling because a simulated camera can replace a physical camera, and a simulated thruster model can replace the physical Teensy and thruster interface during testing.
 
-Group --- Snapshot 4 Update (Month 10 - 12) ---- Version 0.4
+\subsection{Data Flow}
+\begin{enumerate}[leftmargin=*]
+  \item The operator launches the system using a documented ROS 2 launch file or Docker entrypoint.
+  \item Camera, MS5837, IMU, and optional simulated sensor drivers publish raw input topics.
+  \item Computer vision and state estimation nodes convert raw input into detection and vehicle state messages.
+  \item The autonomy node evaluates mission state and chooses the next behavior.
+  \item The controls node converts the desired behavior into bounded motion commands.
+  \item The hardware interface sends commands to the Teensy 4.1 and thruster controller, or the simulation consumes the commands in a virtual environment.
+  \item Logging records configuration, events, warnings, and test outcomes.
+\end{enumerate}
 
-- Edited and finalized SDD
+\section{Detailed Design}
+\subsection{Computer Vision Subsystem}
+The computer vision subsystem receives low-light camera frames and publishes mission object detections. It uses OpenCV for image processing and YOLOv7 for object detection. A detection message should include object type, confidence, bounding box or center point, timestamp, and frame ID. The subsystem should support at least two input modes: live camera and recorded or simulated image stream.
 
-Introduction:
+\subsection{Navigation and State Estimation Subsystem}
+The navigation and state estimation subsystem combines IMU readings, MS5837 pressure sensor readings, and optional visual estimates. The output is a Wailord state message containing depth, heading, roll, pitch, yaw, timestamp, and freshness metadata. Consumers must reject stale state messages.
 
-This document will go over the software requirements for the RoboSub project, and focuses on the
-technical side. It will be intended for readers that are developers, managers, and technical 
-users and is designed to help understand the code, update procedures, and architecture. The
-software used will be capable of onboard computing and control, using micocontroller drives and
-customized thrusters boards. 
+\subsection{Autonomy Subsystem}
+The autonomy subsystem uses a mission state machine. Representative states include initialize, search, align, approach, execute task, recover, and complete. Transitions must be based on explicit events such as target detected, confidence threshold met, timeout reached, or safety fault raised.
 
-Design Considerations:
+\subsection{Controls Subsystem}
+The controls subsystem converts autonomy goals into thruster commands. The control layer may use PID controllers and a thruster solver for depth, heading, and translation. All output must pass through command validation before reaching hardware. Validation includes min and max bounds, rate limits, stale input checks, and hardware enable state.
 
-The design of this system depends on several assumptions and constraints. The system assumes that 
-the main computing device, control board, sensors, actuators, and development tools are available 
-and working properly. If any of these parts change, the software design may need to be updated to 
-remain compatible with the new setup. The system also has limitations that must be considered during 
-development. These include limited processing power, memory, storage, testing time, and access to 
-physical hardware. Because the vehicle may operate in a real-world environment, the software should 
-be reliable, easy to understand, and able to handle possible errors. The design should also support 
-communication between the major subsystems so that vision, control, sensors, and autonomous behavior 
-can work together.
+\subsection{Hardware Interface Subsystem}
+The hardware interface hides low-level communication details from the rest of the system. It translates bounded commands into Teensy 4.1, PWM, GPIO, serial, or custom board messages. It also reports acknowledgement, fault, or timeout information back to the logging and state systems.
 
-Architectural Strategies:
+\subsection{Simulation Subsystem}
+The simulation subsystem provides a Unity HDRP or Gazebo Fortress virtual pool, Wailord vehicle model, simulated sensors, and mission objects. Its purpose is not to prove real-world performance. Its purpose is to catch integration errors, missing messages, bad launch configuration, and obvious mission logic issues before hardware testing.
 
-The system is designed using a modular architecture so that each major part of the project can be 
-developed, tested, and updated separately. The main subsystems include vision, control, sensing, 
-communication, simulation, and user documentation. Each subsystem should have a clear responsibility 
-and should exchange information through defined interfaces.This design was chosen because it makes 
-the project easier to maintain and expand. If a new sensor, actuator, or feature is added later, it 
-can be connected as a separate module instead of changing the entire system. The architecture also 
-supports testing in a virtual environment before using real hardware, which helps reduce risk and
-allows the team to find problems earlier.
+\subsection{Website Subsystem}
+The website subsystem presents public information about RoboSub LA. It should include pages for Home Port, The Fleet, Sponsors, Crew, Resources, and Updates. It supports recruitment, sponsor visibility, project history, and handoff by giving future students a centralized public reference.
 
-Policies and Tactics:
+\subsection{Documentation and Tracking}
+The repository contains the SRS, SDD, design specification, user manual, snapshot objectives, workflow diagram, and TestRail-style reports. Jira is used to track tasks and snapshot work. TestRail is used, or represented in exported report form, to connect requirements to test cases and results.
 
-For this project, we will use github for version control and collaborative development. We will use 
-neccessary software frameworks to provide tools for robot development to provide commuincation between 
-subsystems. We will include a comprehensive README where dependencies, features, and installtion 
-instructions are explained. We will imploy a variety of testing methods to ensure correct functionality,
-including simulation environments and real world environments. Multiple coding languages may be used 
-including python and C++, and as such we will follow these languages guidelines and document our code
-as need be. 
+\section{Interface Design}
+\subsection{Recommended ROS Topics}
+\begin{longtable}{|p{0.24\textwidth}|p{0.24\textwidth}|p{0.36\textwidth}|}
+\hline
+\textbf{Topic} & \textbf{Publisher} & \textbf{Purpose} \\
+\hline
+/camera/front/image\_raw & Low-light camera driver or simulator & Raw front camera frames for computer vision. \\
+\hline
+/perception/detections & Computer vision node & Object detections for autonomy. \\
+\hline
+/state/vehicle & Navigation and state estimation node & Current Wailord pose, depth, heading, and freshness metadata. \\
+\hline
+/sensors/depth & MS5837 or simulator bridge & Depth sensor readings. \\
+\hline
+/mission/state & Autonomy node & Current mission state for monitoring and logs. \\
+\hline
+/control/goal & Autonomy node & Desired vehicle movement or pose target. \\
+\hline
+/thrusters/command & Controls node & Bounded thruster setpoints. \\
+\hline
+/hardware/status & Teensy or hardware interface & Hardware acknowledgement, faults, and enable state. \\
+\hline
+/logs/events & All major nodes & Structured event logs for test evidence. \\
+\hline
+\end{longtable}
 
+\subsection{Message Contract Guidelines}
+\begin{itemize}[leftmargin=*]
+  \item Every message that affects control must include a timestamp.
+  \item Frame IDs must be included when the message depends on a physical coordinate frame.
+  \item Confidence values must use a documented range from 0.0 to 1.0.
+  \item Hardware command messages must include limits or be validated against configured limits before output.
+  \item Fault messages must include subsystem name, severity, timestamp, and recommended operator response.
+\end{itemize}
 
-Detailed System Design:
+\section{Deployment Design}
+\subsection{Development Environment}
+Development should run on Kubuntu 22.04.5 LTS, Ubuntu 22.04, or a Docker image based on Ubuntu 22.04. Developers should install ROS 2 Humble, Python 3.10, C++ build tools, OpenCV, YOLOv7 dependencies, PyTorch, Colcon, CMake, Gazebo Fortress, and Unity tooling where needed. GPU-specific packages should be optional so the documentation remains usable on non-Jetson development machines.
 
-The system is divided into several major modules that each handle a specific responsibility. The vision 
-module is responsible for collecting visual input, processing images, and identifying important objects 
-in the environment. This information is then shared with the control and autonomy modules so the vehicle 
-can make movement decisions based on what it detects. The control module is responsible for managing the 
-vehicle's movement and translating high level decisions into commands for the physical parts of the system. 
-It uses information from the vision and sensor modules to adjust direction, speed, and behavior. This module 
-must respond quickly and safely because delays or incorrect commands could cause the vehicle to move incorrectly.
+\subsection{Runtime Modes}
+\begin{longtable}{|p{0.22\textwidth}|p{0.32\textwidth}|p{0.32\textwidth}|}
+\hline
+\textbf{Mode} & \textbf{Description} & \textbf{Safety Notes} \\
+\hline
+Documentation review & Review requirements, design, workflow, and test plan only. & No hardware risk. \\
+\hline
+Simulation mode & Run virtual sensors, Unity HDRP or Gazebo Fortress, and the Wailord vehicle model. & Confirms integration before hardware. \\
+\hline
+Bench mode & Run onboard computer and electronics without water operation. & Thrusters should be disabled unless explicitly tested. \\
+\hline
+Pool mode & Run controlled water tests. & Requires operator checklist and emergency stop procedure. \\
+\hline
+\end{longtable}
+
+\section{Error Handling and Safety}
+\begin{itemize}[leftmargin=*]
+  \item If camera, depth, or IMU data becomes stale, autonomy must stop advancing mission state and controls must enter hold or safe output.
+  \item If the hardware interface reports a fault, autonomy must transition to recover or abort.
+  \item Thruster commands must be clamped to configured limits.
+  \item Hardware enablement must be explicit and visible to the operator.
+  \item Logs must capture safety faults with timestamps and subsystem names.
+\end{itemize}
+
+\section{Design Rationale}
+The selected design emphasizes modular robotics patterns because RoboSub work is usually divided among subteams. Computer vision, controls, autonomy, hardware, and simulation teams can work in parallel if interfaces are stable. Simulation-first testing reduces risk by catching integration errors before water testing. Docker and documented package lists reduce setup uncertainty for future teams.
+
+\section{Verification Strategy}
+\begin{longtable}{|p{0.24\textwidth}|p{0.40\textwidth}|p{0.22\textwidth}|}
+\hline
+\textbf{Area} & \textbf{Verification Method} & \textbf{Related Tests} \\
+\hline
+Documentation & Repository audit and checklist review. & TC-DOC-001, TC-DOC-002 \\
+\hline
+Environment & Build Docker image and install dependencies. & TC-ENV-001 \\
+\hline
+Computer vision & Feed recorded or simulated frames and inspect detection output. & TC-PER-001, TC-PER-002 \\
+\hline
+Autonomy & Run mission state transitions against controlled inputs. & TC-AUT-001 \\
+\hline
+Controls and safety & Submit command edge cases and verify clamping, rejection, or safe hold. & TC-CTL-001, TC-SAF-001 \\
+\hline
+Simulation & Launch virtual mission and confirm topic exchange. & TC-SIM-001, TC-SIM-002 \\
+\hline
+Logging & Confirm logs include launch configuration, warnings, and results. & TC-LOG-001 \\
+\hline
+\end{longtable}
+
+\section{References}
+\begin{itemize}[leftmargin=*]
+  \item Ascent project page for RoboSub: \url{https://ascent.cysun.org/project/project/view/240}
+  \item RoboSub LA public website: \url{https://www.robosubla.com/}
+  \item RoboSub LA SRS Document - Fall 2025, linked from the Ascent RoboSub resources.
+  \item RoboSub LA SDD Document - Fall 2025, linked from the Ascent RoboSub resources.
+\end{itemize}
+
+\section{Known Limitations}
+This repository contains documentation artifacts for the CS3338 final project. It does not contain a complete RoboSub runtime implementation. Hardware-specific names, pin mappings, calibration values, and exact ROS package names must be confirmed against the active RoboSub codebase before the design is implemented.
+
+\end{document}

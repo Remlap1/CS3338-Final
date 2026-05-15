@@ -1,0 +1,91 @@
+\documentclass[12pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{longtable}
+
+\title{README and User Manual\\RoboSub LA Wailord Documentation and Control Software}
+\author{CS3338 Final Project}
+\date{Snapshot 4 Revision}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Project Overview}
+This repository contains the CS3338 final project documentation package for the RoboSub LA Wailord autonomous underwater vehicle software system. The project is based on the Cal State LA Ascent RoboSub project entry and its linked Fall 2025 SRS and SDD resources. It focuses on requirements, design, workflow, user documentation, dependency planning, and test planning for a modular RoboSub software stack.
+
+\section{Formal Objective Breakdown}
+\begin{itemize}[leftmargin=*]
+  \item Define the software requirements for the Wailord autonomous underwater vehicle.
+  \item Document the design of computer vision, navigation, autonomy, controls, hardware interface, simulation, website, and logging subsystems.
+  \item Provide a repeatable setup and dependency plan suitable for Docker-based development.
+  \item Explain how users and developers interact with the project through GitHub, Jira, simulation tools, and TestRail-style reports.
+  \item Preserve a clear handoff package for future teams.
+\end{itemize}
+
+\section{Goals and Reason for Need}
+RoboSub projects involve several tightly connected software and hardware areas. Without clear documentation, future teams can lose time rediscovering dependencies, subsystem boundaries, test expectations, and safety constraints. This project creates a structured documentation package so the system can be reviewed, expanded, and validated more reliably. The source project identifies simulation, navigation, controls, and computer vision as major development areas, with public website support for team information and updates.
+
+\section{Repository Access}
+\begin{itemize}[leftmargin=*]
+  \item GitHub repository: \url{https://github.com/Remlap1/CS3338-Final}
+  \item Ascent RoboSub project page: \url{https://ascent.cysun.org/project/project/view/240}
+  \item RoboSub LA website: \url{https://www.robosubla.com/}
+  \item Jira board: \url{https://cs3338robosubex.atlassian.net/jira/software/projects/KAN/boards/1?atlOrigin=eyJpIjoiNDEzOWRkZWM5MmM5NGM0NmI2NTM2NTYzYWJlOWI3ZmIiLCJwIjoiaiJ9}
+\end{itemize}
+
+\section{How to Download}
+\begin{enumerate}[leftmargin=*]
+  \item Open the GitHub repository link.
+  \item Select \texttt{Code}.
+  \item Clone the repository with SSH or HTTPS.
+  \item Review the LaTeX documents in the repository root.
+\end{enumerate}
+
+\section{How to Use This Repository}
+This repository is a documentation and planning repository. It should be used to review requirements, architecture, workflow, dependency expectations, snapshot objectives, and test coverage. A future implementation team can use the design specification as a starting point for a Dockerfile, ROS 2 Humble workspace, Unity HDRP or Gazebo Fortress simulation launch files, and hardware interface packages for the Jetson Orin Nano and Teensy 4.1.
+
+\section{Document Index}
+\begin{longtable}{|p{0.34\textwidth}|p{0.52\textwidth}|}
+\hline
+\textbf{File} & \textbf{Purpose} \\
+\hline
+\texttt{SRSRobo.tex} & Software Requirements Specification with functional requirements, nonfunctional requirements, interfaces, acceptance criteria, and traceability. \\
+\hline
+\texttt{SDDRobo.tex} & Software Design Document with architecture, subsystem design, interfaces, deployment strategy, and verification plan. \\
+\hline
+\texttt{READMEUserManual.tex} & Formal README and user manual with objective, goals, Jira link, access instructions, and document index. \\
+\hline
+\texttt{DesignSpecRoboSub.tex} & Design specification with pages, tools, subsystem breakdown, Docker packages, dependencies, and libraries. \\
+\hline
+\texttt{RoboSubSnapshot.tex} & Snapshot objectives for Snapshot 1 through Snapshot 4. \\
+\hline
+\texttt{WorkflowDiagram.tex} & High-level workflow diagram showing user access, software modules, data flow, hardware, simulation, and logs. \\
+\hline
+\texttt{TestRailReport1\_Environment.tex} & TestRail-style report for documentation and environment setup. \\
+\hline
+\texttt{TestRailReport2\_Subsystems.tex} & TestRail-style report for computer vision, autonomy, controls, and interface tests. \\
+\hline
+\texttt{TestRailReport3\_Simulation.tex} & TestRail-style report for simulation and integration tests. \\
+\hline
+\texttt{TestRailReport4\_Acceptance.tex} & TestRail-style report for final acceptance and handoff validation. \\
+\hline
+\end{longtable}
+
+\section{Expected Runtime Access}
+The physical RoboSub vehicle Wailord is an on-site vehicle and requires supervised hardware access. Simulation and documentation review can be performed from a development workstation. A future implementation should expose the following access paths:
+\begin{itemize}[leftmargin=*]
+  \item command line access for building and launching ROS 2 packages;
+  \item Unity HDRP or Gazebo Fortress simulation GUI access for virtual pool testing;
+  \item public website access for Home Port, The Fleet, Sponsors, Crew, Resources, and Updates pages;
+  \item repository access for setup and design documents;
+  \item Jira access for task tracking;
+  \item TestRail access or exported reports for test evidence.
+\end{itemize}
+
+\section{Current Repository Limitation}
+This repository contains the documentation package for the CS3338 final project. It does not contain the full RoboSub runtime source code, calibrated hardware drivers, or verified physical test results. Any real vehicle deployment must be validated against the active RoboSub LA codebase and Wailord hardware.
+
+\end{document}

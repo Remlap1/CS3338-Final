@@ -1,0 +1,56 @@
+\documentclass[12pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{longtable}
+
+\title{TestRail Report 1\\Documentation and Environment Setup}
+\author{CS3338 Final Project}
+\date{Snapshot 2 Baseline}
+
+\begin{document}
+\maketitle
+
+\section{Report Scope}
+This TestRail-style report covers documentation presence, Jira access, repository organization, and Docker environment setup for the RoboSub LA Wailord project. Because this repository does not contain executable RoboSub source code, statuses are listed as Ready, Planned, or Blocked instead of fabricated pass results.
+
+\section{Run Summary}
+\begin{longtable}{|p{0.30\textwidth}|p{0.18\textwidth}|p{0.36\textwidth}|}
+\hline
+\textbf{Metric} & \textbf{Value} & \textbf{Notes} \\
+\hline
+Total cases & 5 & Documentation and setup focused. \\
+\hline
+Passed & 0 & No executed TestRail export is present in the repository. \\
+\hline
+Ready for review & 3 & Can be reviewed directly from repository contents. \\
+\hline
+Planned or blocked & 2 & Requires implementation Dockerfile or external access. \\
+\hline
+\end{longtable}
+
+\section{Test Cases}
+\begin{longtable}{|p{0.13\textwidth}|p{0.22\textwidth}|p{0.35\textwidth}|p{0.14\textwidth}|}
+\hline
+\textbf{Case ID} & \textbf{Name} & \textbf{Expected Result} & \textbf{Status} \\
+\hline
+TC-DOC-001 & Repository document audit & SRS, SDD, user manual, design spec, snapshot objectives, workflow diagram, and four reports are present. & Ready \\
+\hline
+TC-DOC-002 & Jira link review & User manual includes the Jira board link and explains its purpose. & Ready \\
+\hline
+TC-ENV-001 & Docker dependency build & Docker image installs ROS 2 Humble, Colcon, OpenCV, YOLOv7/PyTorch dependencies, Python, C++ tools, Gazebo Fortress integration, and LaTeX packages. & Planned \\
+\hline
+TC-ENV-002 & Clean checkout review & A new developer can clone the repo and identify all required documents without external explanation. & Planned \\
+\hline
+TC-ENV-003 & Target platform review & Documentation identifies Jetson Orin Nano, Teensy 4.1, Kubuntu 22.04.5, ROS 2 Humble, and Wailord hardware assumptions. & Ready \\
+\hline
+\end{longtable}
+
+\section{Risks}
+\begin{itemize}[leftmargin=*]
+  \item Docker build cannot be marked passed until a Dockerfile or runtime repository exists.
+  \item Jira may require authenticated access.
+  \item TestRail exports should replace this report if official TestRail run data becomes available.
+\end{itemize}
+
+\end{document}

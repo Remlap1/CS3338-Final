@@ -1,0 +1,217 @@
+\documentclass[12pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{longtable}
+
+\title{Design Specification\\RoboSub LA Wailord Documentation and Control Software}
+\author{CS3338 Final Project}
+\date{Snapshot 4 Revision}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Purpose}
+This design specification breaks down each major page, part, tool, dependency, and library expected for the RoboSub LA Wailord software project. It also lists the packages that should be installed in a Docker container for future implementation and validation.
+
+\section{Source Basis}
+This document is based on the Ascent RoboSub project page, the linked Fall 2025 RoboSub LA SRS and SDD documents, and the RoboSub LA website. Those sources identify Wailord, the Jetson Orin Nano, Teensy 4.1, ROS 2 Humble, Kubuntu 22.04.5, Unity HDRP, Gazebo Fortress, OpenCV, YOLOv7, and related hardware as the expected project context.
+
+\section{User-Facing Pages and Tools}
+\begin{longtable}{|p{0.25\textwidth}|p{0.27\textwidth}|p{0.34\textwidth}|}
+\hline
+\textbf{Page or Tool} & \textbf{Primary User} & \textbf{Purpose} \\
+\hline
+GitHub repository & Developers and reviewers & Stores documentation, design artifacts, source code, issue references, and final submission files. \\
+\hline
+README and user manual & Developers, operators, reviewers & Explains objective, setup, access, Jira link, document index, and project limitations. \\
+\hline
+Jira board & Project team & Tracks tasks, snapshot objectives, assignments, and progress. \\
+\hline
+TestRail reports & Testers and reviewers & Stores or exports test case evidence, statuses, and requirement coverage. \\
+\hline
+Simulation GUI & Developers and operators & Displays Unity HDRP or Gazebo Fortress virtual pool, Wailord model, mission objects, and simulated sensor behavior. \\
+\hline
+Command line interface & Developers and operators & Builds packages, launches ROS 2 nodes, runs tests, and inspects topics. \\
+\hline
+Logs directory or logging dashboard & Developers and testers & Collects launch metadata, warnings, subsystem events, and validation evidence. \\
+\hline
+RoboSub LA website & Public visitors and team members & Displays Home Port, The Fleet, Sponsors, Crew, Resources, Updates, media, procedures, and recruitment information. \\
+\hline
+\end{longtable}
+
+\section{Website Pages}
+\begin{longtable}{|p{0.22\textwidth}|p{0.62\textwidth}|}
+\hline
+\textbf{Page} & \textbf{Purpose} \\
+\hline
+Home Port & Introduces RoboSub LA, the team purpose, and the competition context. \\
+\hline
+The Fleet & Shows submarine vehicles and vehicle-specific information. \\
+\hline
+Sponsors & Lists sponsors, sponsor tiers, and contribution information. \\
+\hline
+Crew & Presents team members and team structure. \\
+\hline
+Resources & Provides learning material and team resources. \\
+\hline
+Updates & Provides progress updates and build history for Wailord. \\
+\hline
+\end{longtable}
+
+\section{Software Parts}
+\subsection{Computer Vision}
+The computer vision part processes low-light camera data and detects mission objects. It is expected to use OpenCV, YOLOv7, PyTorch, and optional Roboflow-trained models. It publishes detection messages for the autonomy subsystem.
+
+\subsection{State Estimation}
+The navigation and state estimation part combines MS5837 depth data, heading, orientation, and optional visual data. It publishes a current Wailord state message with timestamps so stale data can be rejected.
+
+\subsection{Autonomy}
+The autonomy part controls the mission state machine. It consumes detections and state estimates, selects mission behavior, and publishes movement goals.
+
+\subsection{Controls}
+The controls part converts movement goals into bounded thruster commands. It should support PID-style control loops, a thruster solver, and output limits for Blue Robotics T200 thrusters or the active thruster configuration.
+
+\subsection{Hardware Interface}
+The hardware interface part communicates with the Jetson Orin Nano, Teensy 4.1, thruster controllers, actuators, MS5837 pressure sensor, and other sensors. It isolates hardware protocols from high-level logic.
+
+\subsection{Simulation}
+The simulation part provides a Unity HDRP or Gazebo Fortress virtual pool, simulated sensors, and the Wailord submarine model. It allows teams to test message flow and mission logic before using physical hardware.
+
+\subsection{Logging and Reports}
+The logging and reporting part records launch configuration, node status, warnings, fault events, and test results. This evidence supports TestRail reports and final review.
+
+\section{Recommended Docker Base}
+\begin{itemize}[leftmargin=*]
+  \item Base image: \texttt{ubuntu:22.04}, compatible with the Kubuntu 22.04.5 target environment
+  \item ROS distribution: \texttt{ros-humble-desktop} or a smaller Humble image with required packages
+  \item Python version: Python 3.10
+  \item C++ toolchain: GCC, G++, CMake, Make, and colcon
+  \item Optional GPU target: NVIDIA Jetson Orin Nano or NVIDIA Container Toolkit enabled host
+\end{itemize}
+
+\section{Docker Package List}
+\begin{longtable}{|p{0.28\textwidth}|p{0.50\textwidth}|}
+\hline
+\textbf{Package or Tool} & \textbf{Reason} \\
+\hline
+\texttt{build-essential} & C++ compilation and native dependency builds. \\
+\hline
+\texttt{cmake} & Standard C++ and robotics package build configuration. \\
+\hline
+\texttt{git} & Repository access and version control. \\
+\hline
+\texttt{python3}, \texttt{python3-pip} & Python nodes, tools, and dependency installation. \\
+\hline
+\texttt{python3-opencv} or \texttt{opencv-python} & OpenCV image processing and camera utilities. \\
+\hline
+\texttt{python3-colcon-common-extensions} & ROS 2 workspace build support. \\
+\hline
+\texttt{ros-humble-desktop} & ROS 2 runtime, tools, and common desktop simulation support. \\
+\hline
+\texttt{ros-humble-cv-bridge} & Converts ROS image messages to OpenCV images. \\
+\hline
+\texttt{ros-humble-image-transport} & Efficient camera topic transport. \\
+\hline
+\texttt{ros-humble-rviz2} & Visualization and debugging. \\
+\hline
+\texttt{ros-humble-gazebo-ros-pkgs} & Gazebo integration with ROS 2. \\
+\hline
+\texttt{numpy}, \texttt{scipy} & Math, arrays, filtering, and control calculations. \\
+\hline
+\texttt{torch}, \texttt{torchvision} & PyTorch runtime for YOLOv7 style model execution. \\
+\hline
+\texttt{v4l-utils} & Camera inspection and debugging on Linux. \\
+\hline
+\texttt{platformio} & Optional Teensy 4.1 or microcontroller firmware builds. \\
+\hline
+\texttt{pytest} & Python unit testing. \\
+\hline
+\texttt{clang-format} and \texttt{black} & C++ and Python formatting. \\
+\hline
+\texttt{doxygen} & Optional API documentation for C++ modules. \\
+\hline
+\texttt{texlive-latex-base}, \texttt{texlive-latex-extra} & Building project documentation from LaTeX sources. \\
+\hline
+\end{longtable}
+
+\section{Libraries and Frameworks}
+\begin{longtable}{|p{0.24\textwidth}|p{0.22\textwidth}|p{0.40\textwidth}|}
+\hline
+\textbf{Library} & \textbf{Subsystem} & \textbf{Use} \\
+\hline
+ROS 2 Humble & All runtime modules & Node lifecycle, topics, services, launch files, and package management. \\
+\hline
+OpenCV & Computer vision & Calibration, image transforms, color filtering, contours, and object localization. \\
+\hline
+NumPy & Computer vision and controls & Matrix operations and numerical processing. \\
+\hline
+SciPy & Controls and state estimation & Filtering, optimization, and control calculations. \\
+\hline
+Gazebo Fortress & Simulation & Virtual pool, vehicle model, physics, and simulated sensors. \\
+\hline
+PyTest & Test automation & Unit and integration test execution for Python modules. \\
+\hline
+GoogleTest & Test automation & Unit tests for C++ modules. \\
+\hline
+PlatformIO or Arduino tooling & Microcontroller firmware & Build and upload low-level firmware when applicable. \\
+\hline
+PyTorch and YOLOv7 & Computer vision & Real-time object detection on the Jetson Orin Nano. \\
+\hline
+TensorRT & Optional perception acceleration & GPU-accelerated model optimization when required by the implementation. \\
+\hline
+Unity HDRP or Unity 6.3 & Simulation & Interactive 3D simulation of Wailord, the pool, and competition objects. \\
+\hline
+Blue Robotics hardware stack & Hardware & T200 thrusters, camera, waterproofing, and related physical components. \\
+\hline
+\end{longtable}
+
+\section{Data Storage}
+\begin{itemize}[leftmargin=*]
+  \item Configuration files should be stored as YAML files under a configuration directory.
+  \item Launch files should define runtime mode, simulation mode, hardware enable flags, and topic remapping.
+  \item Logs should include timestamps, launch configuration, node health, warnings, and final test result.
+  \item Calibration files should be version controlled when they do not contain sensitive or machine-specific data.
+\end{itemize}
+
+\section{Security and Access}
+\begin{itemize}[leftmargin=*]
+  \item Repository write access should be limited to approved team members.
+  \item Jira and TestRail accounts may require team or university credentials.
+  \item Hardware operation should require explicit operator permission and a physical safety procedure.
+  \item Secrets, private keys, tokens, and credentials must not be committed to the repository.
+\end{itemize}
+
+\section{Design Traceability}
+\begin{longtable}{|p{0.24\textwidth}|p{0.30\textwidth}|p{0.32\textwidth}|}
+\hline
+\textbf{Design Part} & \textbf{Related Requirement} & \textbf{Related Test Area} \\
+\hline
+Computer vision & FR-1, FR-2 & Camera input and detection tests. \\
+\hline
+State estimation & FR-3 & State freshness and integration tests. \\
+\hline
+Autonomy & FR-4, FR-5 & Mission state transition tests. \\
+\hline
+Controls & FR-6, FR-7 & Thruster bounds and safety tests. \\
+\hline
+Simulation & FR-8 & Simulation launch and end-to-end test. \\
+\hline
+Logging and reports & FR-9, FR-12 & Test evidence and report audit. \\
+\hline
+Documentation & FR-10, FR-11 & Repository checklist and Jira review. \\
+\hline
+\end{longtable}
+
+\section{References}
+\begin{itemize}[leftmargin=*]
+  \item Ascent project page for RoboSub: \url{https://ascent.cysun.org/project/project/view/240}
+  \item RoboSub LA public website: \url{https://www.robosubla.com/}
+  \item RoboSub LA SRS Document - Fall 2025, linked from the Ascent RoboSub resources.
+  \item RoboSub LA SDD Document - Fall 2025, linked from the Ascent RoboSub resources.
+\end{itemize}
+
+\end{document}

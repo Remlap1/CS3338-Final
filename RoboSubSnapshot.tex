@@ -1,20 +1,76 @@
-Robo Sub Snapshot Objectives:
+\documentclass[12pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{longtable}
 
+\title{Snapshot Objectives\\RoboSub LA Wailord Documentation and Control Software}
+\author{CS3338 Final Project}
+\date{Snapshot 4 Revision}
 
-Snapshot 1 (Month 1 - 3): Project Discovery andd Baseline Documentation
-Meaning: Understanding the old RoboSub project, documenting existing repos, tools, hardware, and major gaps
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
 
----------------------------------------------
+\section{Project Timeline}
+The RoboSub final project is scoped as a 12 month documentation, design, and validation plan for the RoboSub LA Wailord project. Each snapshot has a clear objective, expected output, and review focus.
 
-Snapshot 2 (Month 4 - 6): Environment setup and subsystem design
-Meaning: Geting software setup documented, defining subsystem interfaces, and beginning test planning. 
+\section{Snapshot Objectives}
+\begin{longtable}{|p{0.17\textwidth}|p{0.24\textwidth}|p{0.43\textwidth}|}
+\hline
+\textbf{Snapshot} & \textbf{Objective} & \textbf{Deliverables} \\
+\hline
+Snapshot 1, Months 1--3 & Project discovery and baseline documentation. & Select the Ascent RoboSub LA topic, identify stakeholders, review inherited SRS and SDD material, define scope, create initial SRS and SDD drafts, and record major gaps. \\
+\hline
+Snapshot 2, Months 4--6 & Environment setup and subsystem design. & Document Jetson Orin Nano, Teensy 4.1, Kubuntu 22.04.5, ROS 2 Humble, Docker dependency expectations, major subsystem interfaces, Jira workflow, and initial TestRail test cases. \\
+\hline
+Snapshot 3, Months 7--9 & Integration and simulation testing plan. & Define computer vision, navigation, autonomy, controls, hardware, Unity or Gazebo simulation, and website data flow. Create simulation-focused tests and update TestRail-style reports with planned execution evidence. \\
+\hline
+Snapshot 4, Months 10--12 & Final validation and handoff. & Finalize SRS, SDD, user manual, design specification, workflow diagram, snapshot objectives, and four TestRail-style reports for repository submission. \\
+\hline
+\end{longtable}
 
----------------------------------------------
+\section{Snapshot 1 Tasks}
+\begin{itemize}[leftmargin=*]
+  \item Get project topic approved by professor.
+  \item Identify RoboSub LA Wailord as the senior design project basis.
+  \item Document project goals, user needs, and major system components.
+  \item Create initial Jira board and repository structure.
+  \item Draft first versions of the SRS and SDD.
+\end{itemize}
 
-Snapshot 3 (Month 7-9): Integration and simulation testing
-Meaning: Connecting autonomy, controls, computer vision, and simulation, creating TestRail reports and tracking jira issues
+\section{Snapshot 2 Tasks}
+\begin{itemize}[leftmargin=*]
+  \item Identify expected operating system, Docker base image, ROS 2 version, Jetson Orin Nano, Teensy 4.1, and development tools.
+  \item Define subsystem boundaries for computer vision, autonomy, controls, hardware interface, simulation, and documentation.
+  \item Create initial test cases for environment setup and documentation review.
+  \item Add dependency and package expectations to the design specification.
+\end{itemize}
 
----------------------------------------------
+\section{Snapshot 3 Tasks}
+\begin{itemize}[leftmargin=*]
+  \item Define simulation workflow and virtual mission validation goals.
+  \item Add interface-level tests for computer vision, autonomy, controls, and safety behavior.
+  \item Map major requirements to test cases.
+  \item Create TestRail-style reports for subsystem and simulation validation.
+\end{itemize}
 
-Snapshot 4 (10-12): Final Validation and handoff
-Meaning: Finalizing documentation, user manual, workflow diagram, test reports, and furture-team handoff notes. 
+\section{Snapshot 4 Tasks}
+\begin{itemize}[leftmargin=*]
+  \item Finalize all required repository documents.
+  \item Add workflow diagram showing user, software, data, hardware, and logs.
+  \item Review documents for consistency, traceability, and missing sections.
+  \item Prepare GitHub repository link for final submission.
+\end{itemize}
+
+\section{Completion Criteria}
+\begin{enumerate}[leftmargin=*]
+  \item All required final project documents are present in the repository as LaTeX files.
+  \item The README identifies the project, objective, Jira board, access instructions, and document index.
+  \item Requirements and design sections use concrete RoboSub subsystems instead of generic descriptions.
+  \item TestRail-style reports include test case IDs, expected results, and current execution status.
+  \item The workflow diagram explains how operators, software modules, data, hardware, and logs connect.
+\end{enumerate}
+
+\end{document}

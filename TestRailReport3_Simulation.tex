@@ -1,0 +1,53 @@
+\documentclass[12pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{longtable}
+
+\title{TestRail Report 3\\Simulation and Integration Validation}
+\author{CS3338 Final Project}
+\date{Snapshot 3 Integration Review}
+
+\begin{document}
+\maketitle
+
+\section{Report Scope}
+This TestRail-style report covers Unity HDRP or Gazebo Fortress simulation launch, end-to-end topic flow, and logging behavior. It is intended for validation before physical Wailord testing.
+
+\section{Run Summary}
+\begin{longtable}{|p{0.30\textwidth}|p{0.18\textwidth}|p{0.36\textwidth}|}
+\hline
+\textbf{Metric} & \textbf{Value} & \textbf{Notes} \\
+\hline
+Total cases & 4 & Simulation and integration focused. \\
+\hline
+Passed & 0 & Simulation implementation is not included in this repository. \\
+\hline
+Planned & 4 & Test definitions are ready for future execution. \\
+\hline
+\end{longtable}
+
+\section{Test Cases}
+\begin{longtable}{|p{0.13\textwidth}|p{0.22\textwidth}|p{0.35\textwidth}|p{0.14\textwidth}|}
+\hline
+\textbf{Case ID} & \textbf{Name} & \textbf{Expected Result} & \textbf{Status} \\
+\hline
+TC-SIM-001 & Simulation launch & Unity HDRP or Gazebo Fortress virtual pool, Wailord model, and simulated sensors start from documented command. & Planned \\
+\hline
+TC-SIM-002 & End-to-end simulated mission & Simulated computer vision, autonomy, controls, and state estimation exchange expected messages. & Planned \\
+\hline
+TC-INT-001 & Topic contract review & Expected ROS 2 topics exist and publish messages with required fields. & Planned \\
+\hline
+TC-LOG-001 & Mission log capture & Launch configuration, warnings, mission events, and final result are written to logs. & Planned \\
+\hline
+\end{longtable}
+
+\section{Evidence Needed}
+\begin{itemize}[leftmargin=*]
+  \item Screenshot or log of simulation launch.
+  \item ROS 2 topic list and sample message output.
+  \item Mission log file attached to TestRail run.
+  \item Defect links in Jira for any failed integration case.
+\end{itemize}
+
+\end{document}

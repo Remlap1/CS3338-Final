@@ -1,0 +1,56 @@
+\documentclass[12pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{longtable}
+
+\title{TestRail Report 4\\Final Acceptance and Handoff Validation}
+\author{CS3338 Final Project}
+\date{Snapshot 4 Final Review}
+
+\begin{document}
+\maketitle
+
+\section{Report Scope}
+This TestRail-style report covers final acceptance criteria for the CS3338 repository submission and future RoboSub LA handoff. It focuses on whether the documentation package is complete, traceable, source-based, and usable.
+
+\section{Run Summary}
+\begin{longtable}{|p{0.30\textwidth}|p{0.18\textwidth}|p{0.36\textwidth}|}
+\hline
+\textbf{Metric} & \textbf{Value} & \textbf{Notes} \\
+\hline
+Total cases & 6 & Final repository and handoff checks. \\
+\hline
+Passed & 0 & Final human review should be completed before submission. \\
+\hline
+Ready for review & 6 & Cases can be reviewed directly from the repository. \\
+\hline
+\end{longtable}
+
+\section{Test Cases}
+\begin{longtable}{|p{0.13\textwidth}|p{0.22\textwidth}|p{0.35\textwidth}|p{0.14\textwidth}|}
+\hline
+\textbf{Case ID} & \textbf{Name} & \textbf{Expected Result} & \textbf{Status} \\
+\hline
+TC-ACC-001 & Required file checklist & All final project documents required by the assignment are present as repository files. & Ready \\
+\hline
+TC-ACC-002 & Requirement traceability & SRS requirements map to design areas and representative test cases. & Ready \\
+\hline
+TC-ACC-003 & Dependency review & Design specification lists Docker packages, dependencies, and libraries needed for implementation. & Ready \\
+\hline
+TC-ACC-004 & Workflow review & Workflow diagram shows user access, software modules, data flow, hardware, simulation, logs, and TestRail reports. & Ready \\
+\hline
+TC-ACC-005 & Handoff limitation review & User manual clearly states that this repo is a documentation package and that physical deployment requires active RoboSub code and hardware validation. & Ready \\
+\hline
+TC-ACC-006 & Source project alignment & SRS, SDD, user manual, and design spec reflect the Ascent RoboSub page and linked Fall 2025 SRS/SDD context. & Ready \\
+\hline
+\end{longtable}
+
+\section{Final Review Notes}
+\begin{itemize}[leftmargin=*]
+  \item Replace Ready statuses with Passed or Failed after the group performs final review.
+  \item Attach official TestRail exports if the course requires screenshots or generated TestRail reports.
+  \item Confirm the GitHub repository link and Jira link are accessible to the professor before submission.
+\end{itemize}
+
+\end{document}

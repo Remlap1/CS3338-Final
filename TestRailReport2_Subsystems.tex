@@ -1,0 +1,56 @@
+\documentclass[12pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{longtable}
+
+\title{TestRail Report 2\\Subsystem Interface Validation}
+\author{CS3338 Final Project}
+\date{Snapshot 3 Subsystem Review}
+
+\begin{document}
+\maketitle
+
+\section{Report Scope}
+This TestRail-style report covers subsystem-level test cases for computer vision, navigation/state estimation, autonomy, controls, Teensy hardware communication, and safety interfaces. Tests are written for a future ROS 2 Humble RoboSub LA implementation.
+
+\section{Run Summary}
+\begin{longtable}{|p{0.30\textwidth}|p{0.18\textwidth}|p{0.36\textwidth}|}
+\hline
+\textbf{Metric} & \textbf{Value} & \textbf{Notes} \\
+\hline
+Total cases & 6 & Interface-focused subsystem tests. \\
+\hline
+Passed & 0 & No executable subsystem code is included in this repository. \\
+\hline
+Planned & 6 & Ready to transfer into TestRail or implementation test suite. \\
+\hline
+\end{longtable}
+
+\section{Test Cases}
+\begin{longtable}{|p{0.13\textwidth}|p{0.22\textwidth}|p{0.35\textwidth}|p{0.14\textwidth}|}
+\hline
+\textbf{Case ID} & \textbf{Name} & \textbf{Expected Result} & \textbf{Status} \\
+\hline
+TC-PER-001 & Camera frame input & Computer vision node receives frames from low-light USB camera, simulated camera, or recorded image source. & Planned \\
+\hline
+TC-PER-002 & Object detection message & Detection output includes type, confidence, timestamp, frame ID, and image-frame location. & Planned \\
+\hline
+TC-AUT-001 & Mission state transition & Mission manager transitions from search to align only after target confidence threshold is met. & Planned \\
+\hline
+TC-CTL-001 & Thruster command bounds & Commands above configured limits are clamped or rejected before reaching hardware output. & Planned \\
+\hline
+TC-HW-001 & Jetson to Teensy communication & Jetson Orin Nano sends a bounded command to the Teensy 4.1 interface and receives status or acknowledgement. & Planned \\
+\hline
+TC-SAF-001 & Sensor timeout safe state & Missing or stale sensor input causes safe hold, recover, or disabled output state. & Planned \\
+\hline
+\end{longtable}
+
+\section{Evidence Needed}
+\begin{itemize}[leftmargin=*]
+  \item ROS 2 topic logs showing published and consumed messages.
+  \item Unit test output for autonomy transitions and control command bounds.
+  \item Hardware interface logs showing command rejection or clamping.
+\end{itemize}
+
+\end{document}

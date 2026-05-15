@@ -1,75 +1,270 @@
-Software Requirements Specification: Robo Sub
+\documentclass[12pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{longtable}
 
-Revision History
+\title{Software Requirements Specification\\RoboSub LA Wailord Documentation and Control Software}
+\author{CS3338 Final Project}
+\date{Snapshot 4 Revision}
 
-Group --- Snapshot 1 Update (Month 1 - 3) ---- Version 0.1
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
 
-- Added Introduction, Description
+\section{Revision History}
+\begin{longtable}{|p{0.18\textwidth}|p{0.18\textwidth}|p{0.52\textwidth}|}
+\hline
+\textbf{Version} & \textbf{Snapshot} & \textbf{Summary} \\
+\hline
+0.1 & Snapshot 1 & Added project introduction, scope, baseline description, and stakeholder overview. \\
+\hline
+0.2 & Snapshot 2 & Added external interfaces, major functional requirements, and environment setup requirements. \\
+\hline
+0.3 & Snapshot 3 & Added nonfunctional requirements, legal and ethical constraints, and preliminary test cases. \\
+\hline
+0.4 & Snapshot 4 & Expanded subsystem requirements, acceptance criteria, traceability, and validation test cases. \\
+\hline
+\end{longtable}
 
-Group --- Snapshot 2 Update (Month 4 - 6) ---- Version 0.2
+\section{Introduction}
+\subsection{Purpose}
+This Software Requirements Specification (SRS) defines the expected behavior, constraints, interfaces, and validation criteria for the RoboSub LA Wailord software system. The project is based on the Cal State LA RoboSub senior design project listed in Ascent and the linked Fall 2025 RoboSub SRS and SDD resources. The goal of this documentation package is to make the inherited project easier to understand, test, containerize, and hand off to future teams.
 
-- Added External Interface Requirements, Requirements
+\subsection{Scope}
+The system supports autonomous underwater operation through computer vision, navigation, autonomy, controls, hardware communication, simulation, website support, and project documentation. The software is expected to process camera and sensor input, determine vehicle state, select mission behavior, issue movement commands, and provide a repeatable simulation workflow before physical testing. The mission goal is for the AUV to localize itself, navigate through an underwater obstacle course, detect surroundings and objects, and perform tasks without user input after deployment.
 
-Group --- Snapshot 3 Update (Month 7 - 9) ---- Version 0.3
+This CS3338 final project focuses on requirements, design, workflow, test planning, and project handoff documentation. No production RoboSub source code is included in this repository, so implementation-specific test execution must be completed by the team that has access to the physical vehicle and operational repositories.
 
-- Added Other Nonfunctional Requirements, and Legal and Ethical Considerations
+\subsection{Stakeholders}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Student development team:} Authors and maintainers of project documentation, issue tracking, and test plans.
+  \item \textbf{Future RoboSub teams:} Users of the documentation who need to understand architecture, dependencies, and setup.
+  \item \textbf{Faculty reviewer:} Reviewer of the project management, requirements, design, and verification artifacts.
+  \item \textbf{Vehicle operators:} Team members who run simulations, perform bench tests, and operate the vehicle in controlled water tests.
+\end{itemize}
 
-Group --- Snapshot 4 Update (Month 10 - 12) ---- Version 0.4
+\subsection{Definitions}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{AUV:} Autonomous Underwater Vehicle.
+  \item \textbf{ROS 2:} Robot Operating System 2 middleware used for robotics messaging, packages, and tooling.
+  \item \textbf{CV:} Computer vision subsystem that processes camera input.
+  \item \textbf{PID:} Proportional, Integral, Derivative control loop.
+  \item \textbf{TestRail:} Test management tool used to organize test cases, runs, and reports.
+\end{itemize}
 
-- Final edits on all topics of SRS
+\section{Overall Description}
+\subsection{Product Perspective}
+The RoboSub software is a modular robotics system. It receives data from cameras, depth sensors, inertial sensors, and hardware controllers. It publishes processed state estimates and mission decisions to control modules. Control modules send commands to thrusters and actuators through a hardware interface layer. A simulation environment mirrors the physical system so teams can validate logic before operating the real vehicle.
 
+\subsection{Major Subsystems}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Computer vision subsystem:} Captures low-light camera frames, applies OpenCV and YOLOv7 processing, and identifies competition objects.
+  \item \textbf{Navigation and state subsystem:} Combines depth, orientation, and localization data into a vehicle state estimate.
+  \item \textbf{Autonomy subsystem:} Maintains mission state, chooses behavior, and requests movement goals.
+  \item \textbf{Controls subsystem:} Converts target pose, velocity, or heading into thruster commands using PID control and a thruster solver.
+  \item \textbf{Hardware interface subsystem:} Communicates between the Jetson Orin Nano, Teensy 4.1, MS5837 pressure sensor, thrusters, and actuators.
+  \item \textbf{Simulation subsystem:} Provides Unity HDRP and Gazebo Fortress based virtual testing for Wailord, the pool, water behavior, and competition objects.
+  \item \textbf{Website and documentation subsystem:} Provides public project information, fleet details, sponsors, resources, updates, setup instructions, architecture references, and test procedures.
+\end{enumerate}
 
-Introduction:
+\subsection{Operating Environment}
+The expected operating environment is Kubuntu 22.04.5 LTS on an NVIDIA Jetson Orin Nano, with ROS 2 Humble and Colcon used for robotics packages and communication. A Teensy 4.1 microcontroller handles low-level sensor and actuator interaction. Computer vision workloads use OpenCV, YOLOv7, PyTorch, and optional Roboflow-trained models. Simulation work uses Unity HDRP or Unity 6.3 and Gazebo Fortress, depending on the subsystem being tested. Development should also support an Ubuntu 22.04 compatible Docker container where possible so dependencies can be reproduced.
 
-This document is a high level explanation of the software requirements and is intended 
-to be a basis for the robo sub project. There is no specific target audience for this 
-SRS and it is designed for any team working on or wanting to know more abou the Robo Sub.
-The software will utilize many different technologies and frameworks, and its primary goal 
-is for a more efficient and reliable software for the robosub
+\subsection{Assumptions and Dependencies}
+\begin{itemize}[leftmargin=*]
+  \item The physical AUV Wailord, low-light camera, MS5837 pressure sensor, Teensy 4.1, Blue Robotics T200 thrusters, custom boards, and watertight electronics are available for final hardware validation.
+  \item The software stack uses ROS 2 Humble topics, services, launch files, and package conventions.
+  \item Vision workloads require OpenCV and YOLOv7, with PyTorch and optional GPU acceleration on the Jetson Orin Nano.
+  \item Simulation requires Unity HDRP or Unity 6.3 assets, Gazebo Fortress assets, and matching submarine model files.
+  \item TestRail or equivalent exported reports are required for formal test evidence.
+\end{itemize}
 
-Description:
+\section{External Interface Requirements}
+\subsection{User Interfaces}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Project repository:} Provides source documentation, setup instructions, and final deliverables.
+  \item \textbf{RoboSub LA website:} Provides pages such as Home Port, The Fleet, Sponsors, Crew, Resources, and Updates.
+  \item \textbf{Jira board:} Tracks project tasks, snapshots, and progress.
+  \item \textbf{Simulation GUI:} Displays Wailord, the pool environment, object overlays, and simulated sensor behavior.
+  \item \textbf{Command line tools:} Used to build ROS packages, launch nodes, run tests, and inspect topics.
+\end{itemize}
 
-The RoboSub software will directly attempt to solve challenges of efficiency, user access, and
-automation. Issues that may need solving include: Improving computer vision, addressing unorganized 
-repo strucutre and dependencies, and ensuring compatability with newer technologies. The team will be
-divided into subteams, including a autonomy team, controls team, computer vision team, and team lead 
-to help organize the project. The Robosub is designed as a AUV (Autonomous underwater vechicle), and 
-will have main functions such as Navigation and control, Computer vision, and Simulation that need to 
-work simultaniously to in order to function properly. The Operating environment will be on a Nvidia 
-Graphics card using a linux distro. 
+\subsection{Hardware Interfaces}
+\begin{longtable}{|p{0.22\textwidth}|p{0.27\textwidth}|p{0.38\textwidth}|}
+\hline
+\textbf{Hardware} & \textbf{Interface} & \textbf{Purpose} \\
+\hline
+Cameras & Low-light USB camera or equivalent & Capture image frames for computer vision and target detection. \\
+\hline
+IMU & I2C, SPI, serial, or ROS driver & Provide orientation and acceleration data. \\
+\hline
+MS5837 pressure sensor & I2C or microcontroller bridge & Provide underwater depth measurement. \\
+\hline
+Teensy 4.1 microcontroller & USB serial, ROS 2 bridge, or custom firmware protocol & Relay commands between onboard computer and low-level electronics. \\
+\hline
+Blue Robotics T200 thrusters and custom thruster boards & PWM, serial, or custom board protocol & Apply motor commands generated by the controls subsystem. \\
+\hline
+Actuators & GPIO, PWM, serial, or microcontroller command & Trigger grabbers, droppers, torpedoes, or mission-specific devices. \\
+\hline
+\end{longtable}
 
+\subsection{Software Interfaces}
+\begin{itemize}[leftmargin=*]
+  \item ROS 2 Humble middleware for node communication.
+  \item Colcon for building ROS 2 workspaces.
+  \item OpenCV for camera calibration, frame processing, and image transformations.
+  \item YOLOv7 and PyTorch for object detection.
+  \item Gazebo Fortress for simulated physics and sensors.
+  \item Unity HDRP or Unity 6.3 for the Wailord simulation environment.
+  \item Python 3 and C++ for subsystem implementation.
+  \item Docker for repeatable build and runtime environments.
+  \item Jira for project tracking and TestRail for test management.
+\end{itemize}
 
-External Interface Requirements:
+\section{Functional Requirements}
+\begin{longtable}{|p{0.12\textwidth}|p{0.58\textwidth}|p{0.18\textwidth}|}
+\hline
+\textbf{ID} & \textbf{Requirement} & \textbf{Priority} \\
+\hline
+FR-1 & The system shall capture real-time visual information from at least one low-light onboard or simulated camera. & High \\
+\hline
+FR-2 & The computer vision subsystem shall use OpenCV and YOLOv7 to publish detected mission objects with object type, confidence, and image-frame location. & High \\
+\hline
+FR-3 & The state estimation subsystem shall publish vehicle depth, heading, orientation, and confidence or freshness metadata. & High \\
+\hline
+FR-4 & The autonomy subsystem shall represent mission progress as explicit states such as initialize, search, align, approach, execute task, and recover. & High \\
+\hline
+FR-5 & The autonomy subsystem shall consume computer vision and state estimation outputs before issuing movement goals. & High \\
+\hline
+FR-6 & The controls subsystem shall convert movement goals into bounded thruster commands. & High \\
+\hline
+FR-7 & The hardware interface subsystem shall block or clamp commands that exceed configured safety limits. & High \\
+\hline
+FR-8 & The simulation subsystem shall allow the team to run at least one Wailord mission scenario without physical hardware. & Medium \\
+\hline
+FR-9 & The system shall log mission events, important warnings, and test evidence for later review. & Medium \\
+\hline
+FR-10 & The documentation shall describe setup, dependencies, architecture, workflow, and test procedures in repository-controlled files. & High \\
+\hline
+FR-11 & The project shall track work items through Jira and reference the Jira board in the repository user manual. & High \\
+\hline
+FR-12 & The project shall provide TestRail-style test cases covering setup, simulation, computer vision, controls, and acceptance validation. & High \\
+\hline
+FR-13 & The website shall display team information, fleet details, sponsor information, media, procedures, resources, and progress updates. & Medium \\
+\hline
+\end{longtable}
 
-The RoboSub software will need to connect with multiple user, hardware, software, and communication 
-interfaces. The main user interfaces include the project website and the simulation GUI. The website 
-gives users access to project information, while the simulation interface allows the team to view and 
-test the submarine in a virtual pool environment. The hardware interfaces include a microcontroller, 
-thrusters, and actuators. the Microcontroller helps communicate with sensors and actuators. The 
-software also connects communication between subsystems.
+\section{Nonfunctional Requirements}
+\begin{longtable}{|p{0.13\textwidth}|p{0.57\textwidth}|p{0.18\textwidth}|}
+\hline
+\textbf{ID} & \textbf{Requirement} & \textbf{Category} \\
+\hline
+NFR-1 & Core control loops should run at a rate appropriate for stable vehicle operation, with stale inputs detected and rejected. & Performance \\
+\hline
+NFR-2 & The system shall fail into a safe state when required sensor inputs are missing, invalid, or stale. & Safety \\
+\hline
+NFR-3 & The software shall be organized into separable modules so computer vision, autonomy, controls, and hardware interfaces can be tested independently. & Maintainability \\
+\hline
+NFR-4 & Setup instructions shall be reproducible on a clean Linux or Docker environment. & Portability \\
+\hline
+NFR-5 & Requirements, design decisions, dependencies, and tests shall be version controlled in the project repository. & Traceability \\
+\hline
+NFR-6 & The project shall clearly distinguish inherited RoboSub concepts from new CS3338 documentation work. & Ethics \\
+\hline
+NFR-7 & Hardware tests shall require operator review before thrusters or actuators are enabled. & Safety \\
+\hline
+\end{longtable}
 
+\section{Constraints}
+\begin{itemize}[leftmargin=*]
+  \item Physical validation depends on access to Wailord and supervised pool time.
+  \item Hardware interfaces may change between RoboSub revisions, so exact driver names, wire mappings, and calibration values must be verified by the implementation team.
+  \item GPU acceleration is optional but recommended for real-time vision.
+  \item The documentation repository must remain readable even when external Jira or TestRail links require login access.
+\end{itemize}
 
-Requirements Specification:
+\section{Acceptance Criteria}
+\begin{enumerate}[leftmargin=*]
+  \item The repository contains a formal SRS, SDD, user manual, design specification, snapshot objectives document, workflow diagram, and four TestRail-style reports.
+  \item Requirements are uniquely identified and can be traced to test cases.
+  \item The design document explains all major RoboSub subsystems and their data flow.
+  \item The design specification lists expected Docker, package, dependency, and library requirements.
+  \item The workflow diagram shows how the user, UI or CLI, software nodes, data, hardware, and logs interact.
+  \item Test cases cover documentation review, environment setup, subsystem simulation, integration behavior, and final acceptance checks.
+\end{enumerate}
 
-The system has several main functional requirements. The computer vision system must capture visual input, 
-process the video feed, and identify important objects in the environment. The information from the vision 
-system should then be converted into useful data that can help guide the vehicle during operation.The 
-navigation and control system must manage the vehicle's movement and communicate with the necessary onboard 
-components. It should be able to send movement commands, adjust direction, and support autonomous behavior. 
-The simulation system must allow the team to test the vehicle in a virtual environment before using real 
-hardware. The website must display general project information, team information, sponsor information, 
-media, procedures, and progress updates.
+\section{Requirements Traceability}
+\begin{longtable}{|p{0.16\textwidth}|p{0.35\textwidth}|p{0.35\textwidth}|}
+\hline
+\textbf{Requirement} & \textbf{Design Area} & \textbf{Validation Evidence} \\
+\hline
+FR-1, FR-2 & Computer vision node and camera interface & TC-PER-001, TC-PER-002 \\
+\hline
+FR-3 & Navigation and state estimation node & TC-INT-001 \\
+\hline
+FR-4, FR-5 & Mission manager and autonomy state machine & TC-AUT-001, TC-SIM-002 \\
+\hline
+FR-6, FR-7, NFR-2, NFR-7 & Control loop and hardware safety layer & TC-CTL-001, TC-SAF-001 \\
+\hline
+FR-8 & Simulation launch and virtual mission scenario & TC-SIM-001, TC-SIM-002 \\
+\hline
+FR-9 & Logging and report evidence & TC-LOG-001 \\
+\hline
+FR-10, FR-11, FR-12, NFR-5 & Repository documents, Jira, and TestRail reports & TC-DOC-001, TC-DOC-002 \\
+\hline
+FR-13 & Website information pages & TC-ACC-006 \\
+\hline
+\end{longtable}
 
+\section{Representative Test Cases}
+\begin{longtable}{|p{0.14\textwidth}|p{0.25\textwidth}|p{0.41\textwidth}|p{0.10\textwidth}|}
+\hline
+\textbf{ID} & \textbf{Name} & \textbf{Expected Result} & \textbf{Status} \\
+\hline
+TC-DOC-001 & Repository document audit & Required final project documents are present, named clearly, and stored in git. & Ready \\
+\hline
+TC-DOC-002 & Jira link review & User manual contains a reachable Jira board link and explains how the board is used. & Ready \\
+\hline
+TC-ENV-001 & Docker environment build & Container installs ROS 2 Humble, Colcon, OpenCV, YOLOv7 dependencies, Python, C++ build tools, Gazebo Fortress, and LaTeX packages without missing package errors. & Planned \\
+\hline
+TC-INT-001 & Topic contract review & Expected ROS 2 topics exist and publish messages with required fields. & Planned \\
+\hline
+TC-PER-001 & Camera frame input & Computer vision node receives frames from a low-light USB camera, recorded source, or simulated camera. & Planned \\
+\hline
+TC-PER-002 & Object detection message & Computer vision output includes object class, confidence, bounding location, timestamp, and frame ID. & Planned \\
+\hline
+TC-AUT-001 & Mission state transition & Autonomy state machine moves from search to align only after target confidence threshold is met. & Planned \\
+\hline
+TC-CTL-001 & Thruster command bounds & Commands beyond configured maximum values are clamped or rejected before hardware output. & Planned \\
+\hline
+TC-SIM-001 & Simulation launch & Unity HDRP or Gazebo Fortress starts a virtual pool, Wailord submarine model, and simulated sensors from a documented launch command. & Planned \\
+\hline
+TC-SIM-002 & End-to-end simulated mission & Simulated computer vision, autonomy, and controls exchange messages through the expected interfaces. & Planned \\
+\hline
+TC-SAF-001 & Sensor timeout safe state & Missing or stale sensor input causes the vehicle command layer to enter safe hold or disable output. & Planned \\
+\hline
+TC-LOG-001 & Mission log capture & Test run produces timestamped logs that identify launch configuration, warnings, and final result. & Planned \\
+\hline
+TC-ACC-006 & Source project alignment & SRS, SDD, user manual, and design specification reflect the Ascent RoboSub page and linked Fall 2025 SRS/SDD context. & Ready \\
+\hline
+\end{longtable}
 
-Other Nonfunctinoal Requirements:
+\section{References}
+\begin{itemize}[leftmargin=*]
+  \item Ascent project page for RoboSub: \url{https://ascent.cysun.org/project/project/view/240}
+  \item RoboSub LA public website: \url{https://www.robosubla.com/}
+  \item RoboSub LA SRS Document - Fall 2025, linked from the Ascent RoboSub resources.
+  \item RoboSub LA SDD Document - Fall 2025, linked from the Ascent RoboSub resources.
+  \item ROS 2 Humble documentation: \url{https://docs.ros.org/en/humble/index.html}
+  \item Gazebo Fortress documentation: \url{https://gazebosim.org/docs/fortress/install/}
+  \item OpenCV documentation: \url{https://docs.opencv.org/4.x/index.html}
+  \item YOLOv7 documentation: \url{https://docs.ultralytics.com/models/yolov7/}
+\end{itemize}
 
-No outstanding requirements to be fufilled outside of time and task completion, focus will mainly be on the 
-Robosub to operate autonomously and perform tasks reliably. Safety is taken into consideration, with indepth
-testing being done to ensure thruster safety, waterproofing of any electronics, and electrical safety. 
+\section{Legal and Ethical Considerations}
+This project must clearly identify which concepts came from the RoboSub LA senior design project and which artifacts were created for CS3338. Outside documents, diagrams, source code, or design ideas must be cited or rewritten in the team's own words. Safety-related claims must be supported by test evidence and should not imply that Wailord is ready for unsupervised operation without physical validation.
 
-Legal and Ethical Considerations:
-
-The project should be developed in a responsible and honest way. team must clearly state what information came 
-from the original project. This helps avoid misrepresenting the work as fully original. The team should also 
-respect intellectual property by giving credit to any outside resources, documents, diagrams, code, or design 
-ideas that are referenced. Any copied or adapted material should be cited or rewritten in the team’s own words. 
+\end{document}
